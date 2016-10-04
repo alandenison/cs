@@ -45,6 +45,9 @@ namespace CustomerService
             // Add framework services.
             services.AddApplicationInsightsTelemetry(Configuration);
 
+            services.AddDbContext<CustomerServiceContext>(options =>
+                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -60,7 +63,7 @@ namespace CustomerService
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, CustomerServiceContext context)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -92,6 +95,7 @@ namespace CustomerService
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+            DbInitializer.Initialize(context);
         }
     }
 }
